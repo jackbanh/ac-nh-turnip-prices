@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 function minimum_rate_from_given_and_base(given_price, buy_price) {
   return 10000 * (given_price - 1) / buy_price;
 }
@@ -49,7 +51,7 @@ function* generate_pattern_0_with_lengths(given_prices, high_phase_1_len, dec_ph
       }
   */
 
-  buy_price = given_prices[0];
+  const buy_price = given_prices[0];
   var predicted_prices = [
     {
       min: buy_price,
@@ -62,9 +64,9 @@ function* generate_pattern_0_with_lengths(given_prices, high_phase_1_len, dec_ph
   ];
 
   // High Phase 1
-  for (var i = 2; i < 2 + high_phase_1_len; i++) {
-    min_pred = Math.floor(0.9 * buy_price);
-    max_pred = Math.ceil(1.4 * buy_price);
+  for (let i = 2; i < 2 + high_phase_1_len; i++) {
+    let min_pred = Math.floor(0.9 * buy_price);
+    let max_pred = Math.ceil(1.4 * buy_price);
     if (!isNaN(given_prices[i])) {
       if (given_prices[i] < min_pred || given_prices[i] > max_pred ) {
         // Given price is out of predicted range, so this is the wrong pattern
@@ -81,11 +83,11 @@ function* generate_pattern_0_with_lengths(given_prices, high_phase_1_len, dec_ph
   }
 
   // Dec Phase 1
-  var min_rate = 6000;
-  var max_rate = 8000;
-  for (var i = 2 + high_phase_1_len; i < 2 + high_phase_1_len + dec_phase_1_len; i++) {
-    min_pred = Math.floor(min_rate * buy_price / 10000);
-    max_pred = Math.ceil(max_rate * buy_price / 10000);
+  let min_rate = 6000;
+  let max_rate = 8000;
+  for (let i = 2 + high_phase_1_len; i < 2 + high_phase_1_len + dec_phase_1_len; i++) {
+    let min_pred = Math.floor(min_rate * buy_price / 10000);
+    let max_pred = Math.ceil(max_rate * buy_price / 10000);
 
 
     if (!isNaN(given_prices[i])) {
@@ -109,9 +111,9 @@ function* generate_pattern_0_with_lengths(given_prices, high_phase_1_len, dec_ph
   }
 
   // High Phase 2
-  for (var i = 2 + high_phase_1_len + dec_phase_1_len; i < 2 + high_phase_1_len + dec_phase_1_len + high_phase_2_len; i++) {
-    min_pred = Math.floor(0.9 * buy_price);
-    max_pred = Math.ceil(1.4 * buy_price);
+  for (let i = 2 + high_phase_1_len + dec_phase_1_len; i < 2 + high_phase_1_len + dec_phase_1_len + high_phase_2_len; i++) {
+    let min_pred = Math.floor(0.9 * buy_price);
+    let max_pred = Math.ceil(1.4 * buy_price);
     if (!isNaN(given_prices[i])) {
       if (given_prices[i] < min_pred || given_prices[i] > max_pred ) {
         // Given price is out of predicted range, so this is the wrong pattern
@@ -128,11 +130,11 @@ function* generate_pattern_0_with_lengths(given_prices, high_phase_1_len, dec_ph
   }
 
   // Dec Phase 2
-  var min_rate = 6000;
-  var max_rate = 8000;
-  for (var i = 2 + high_phase_1_len + dec_phase_1_len + high_phase_2_len; i < 2 + high_phase_1_len + dec_phase_1_len + high_phase_2_len + dec_phase_2_len; i++) {
-    min_pred = Math.floor(min_rate * buy_price / 10000);
-    max_pred = Math.ceil(max_rate * buy_price / 10000);
+  min_rate = 6000;
+  max_rate = 8000;
+  for (let i = 2 + high_phase_1_len + dec_phase_1_len + high_phase_2_len; i < 2 + high_phase_1_len + dec_phase_1_len + high_phase_2_len + dec_phase_2_len; i++) {
+    let min_pred = Math.floor(min_rate * buy_price / 10000);
+    let max_pred = Math.ceil(max_rate * buy_price / 10000);
 
 
     if (!isNaN(given_prices[i])) {
@@ -156,12 +158,12 @@ function* generate_pattern_0_with_lengths(given_prices, high_phase_1_len, dec_ph
   }
 
   // High Phase 3
-  if (2 + high_phase_1_len + dec_phase_1_len + high_phase_2_len + dec_phase_2_len + high_phase_3_len != 14) {
+  if (2 + high_phase_1_len + dec_phase_1_len + high_phase_2_len + dec_phase_2_len + high_phase_3_len !== 14) {
     throw new Error("Phase lengths don't add up");
   }
-  for (var i = 2 + high_phase_1_len + dec_phase_1_len + high_phase_2_len + dec_phase_2_len; i < 14; i++) {
-    min_pred = Math.floor(0.9 * buy_price);
-    max_pred = Math.ceil(1.4 * buy_price);
+  for (let i = 2 + high_phase_1_len + dec_phase_1_len + high_phase_2_len + dec_phase_2_len; i < 14; i++) {
+    let min_pred = Math.floor(0.9 * buy_price);
+    let max_pred = Math.ceil(1.4 * buy_price);
     if (!isNaN(given_prices[i])) {
       if (given_prices[i] < min_pred || given_prices[i] > max_pred ) {
         // Given price is out of predicted range, so this is the wrong pattern
@@ -223,7 +225,7 @@ function* generate_pattern_1_with_peak(given_prices, peak_start) {
     }
   */
 
-  buy_price = given_prices[0];
+  const buy_price = given_prices[0];
   var predicted_prices = [
     {
       min: buy_price,
@@ -235,12 +237,12 @@ function* generate_pattern_1_with_peak(given_prices, peak_start) {
     },
   ];
 
-  var min_rate = 8500;
-  var max_rate = 9000;
+  let min_rate = 8500;
+  let max_rate = 9000;
 
-  for (var i = 2; i < peak_start; i++) {
-    min_pred = Math.floor(min_rate * buy_price / 10000);
-    max_pred = Math.ceil(max_rate * buy_price / 10000);
+  for (let i = 2; i < peak_start; i++) {
+    let min_pred = Math.floor(min_rate * buy_price / 10000);
+    let max_pred = Math.ceil(max_rate * buy_price / 10000);
 
 
     if (!isNaN(given_prices[i])) {
@@ -264,11 +266,11 @@ function* generate_pattern_1_with_peak(given_prices, peak_start) {
   }
 
   // Now each day is independent of next
-  min_randoms = [0.9, 1.4, 2.0, 1.4, 0.9, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4]
-  max_randoms = [1.4, 2.0, 6.0, 2.0, 1.4, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9]
-  for (var i = peak_start; i < 14; i++) {
-    min_pred = Math.floor(min_randoms[i - peak_start] * buy_price);
-    max_pred = Math.ceil(max_randoms[i - peak_start] * buy_price);
+  let min_randoms = [0.9, 1.4, 2.0, 1.4, 0.9, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4]
+  let max_randoms = [1.4, 2.0, 6.0, 2.0, 1.4, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9]
+  for (let i = peak_start; i < 14; i++) {
+    let min_pred = Math.floor(min_randoms[i - peak_start] * buy_price);
+    let max_pred = Math.ceil(max_randoms[i - peak_start] * buy_price);
 
     if (!isNaN(given_prices[i])) {
       if (given_prices[i] < min_pred || given_prices[i] > max_pred ) {
@@ -312,7 +314,7 @@ function* generate_pattern_2(given_prices) {
   */
 
 
-  buy_price = given_prices[0];
+  const buy_price = given_prices[0];
   var predicted_prices = [
     {
       min: buy_price,
@@ -324,11 +326,11 @@ function* generate_pattern_2(given_prices) {
     },
   ];
 
-  var min_rate = 8500;
-  var max_rate = 9000;
-  for (var i = 2; i < 14; i++) {
-    min_pred = Math.floor(min_rate * buy_price / 10000);
-    max_pred = Math.ceil(max_rate * buy_price / 10000);
+  let min_rate = 8500;
+  let max_rate = 9000;
+  for (let i = 2; i < 14; i++) {
+    let min_pred = Math.floor(min_rate * buy_price / 10000);
+    let max_pred = Math.ceil(max_rate * buy_price / 10000);
 
 
     if (!isNaN(given_prices[i])) {
@@ -392,7 +394,7 @@ function* generate_pattern_3_with_peak(given_prices, peak_start) {
     }
   */
 
-  buy_price = given_prices[0];
+  const buy_price = given_prices[0];
   var predicted_prices = [
     {
       min: buy_price,
@@ -404,12 +406,12 @@ function* generate_pattern_3_with_peak(given_prices, peak_start) {
     },
   ];
 
-  var min_rate = 4000;
-  var max_rate = 9000;
+  let min_rate = 4000;
+  let max_rate = 9000;
 
-  for (var i = 2; i < peak_start; i++) {
-    min_pred = Math.floor(min_rate * buy_price / 10000);
-    max_pred = Math.ceil(max_rate * buy_price / 10000);
+  for (let i = 2; i < peak_start; i++) {
+    let min_pred = Math.floor(min_rate * buy_price / 10000);
+    let max_pred = Math.ceil(max_rate * buy_price / 10000);
 
 
     if (!isNaN(given_prices[i])) {
@@ -434,9 +436,9 @@ function* generate_pattern_3_with_peak(given_prices, peak_start) {
 
   // The peak
 
-  for (var i = peak_start; i < peak_start+2; i++) {
-    min_pred = Math.floor(0.9 * buy_price);
-    max_pred = Math.ceil(1.4 * buy_price);
+  for (let i = peak_start; i < peak_start+2; i++) {
+    let min_pred = Math.floor(0.9 * buy_price);
+    let max_pred = Math.ceil(1.4 * buy_price);
     if (!isNaN(given_prices[i])) {
       if (given_prices[i] < min_pred || given_prices[i] > max_pred ) {
         // Given price is out of predicted range, so this is the wrong pattern
@@ -452,9 +454,11 @@ function* generate_pattern_3_with_peak(given_prices, peak_start) {
     });
   }
 
-  // TODO this could be made more accurate, I've not bothered with forward/backward calculating of the rate each side of the peak value
-  for (var i = peak_start+2; i < peak_start+5; i++) {
-    if (i == peak_start+3) {
+  // TODO this could be made more accurate, I've not bothered with the -1s, or forward/backward calculating of the rate each side of the peak value
+  for (let i = peak_start+2; i < peak_start+5; i++) {
+    let min_pred;
+    let max_pred;
+    if (i === peak_start+3) {
       min_pred = Math.floor(1.4 * buy_price);
       max_pred = Math.ceil(2.0 * buy_price);
     } else {
@@ -477,12 +481,12 @@ function* generate_pattern_3_with_peak(given_prices, peak_start) {
   }
 
   if (peak_start+5 < 14) {
-    var min_rate = 4000;
-    var max_rate = 9000;
+    let min_rate = 4000;
+    let max_rate = 9000;
 
-    for (var i = peak_start+5; i < 14; i++) {
-      min_pred = Math.floor(min_rate * buy_price / 10000);
-      max_pred = Math.ceil(max_rate * buy_price / 10000);
+    for (let i = peak_start+5; i < 14; i++) {
+      let min_pred = Math.floor(min_rate * buy_price / 10000);
+      let max_pred = Math.ceil(max_rate * buy_price / 10000);
 
 
       if (!isNaN(given_prices[i])) {
@@ -520,7 +524,7 @@ function* generate_pattern_3(given_prices) {
 }
 
 
-function* generate_possibilities(sell_prices) {
+export default function* generate_possibilities(sell_prices) {
   if (!isNaN(sell_prices[0])) {
     yield* generate_pattern_0(sell_prices);
     yield* generate_pattern_1(sell_prices);
@@ -537,6 +541,7 @@ function* generate_possibilities(sell_prices) {
   }
 }
 
+/*
 $(document).ready(function () {
   // load sell_prices from local storage
   try {
@@ -579,7 +584,7 @@ $(document).on("input", function() {
   var buy_price = parseInt($("#buy").val());
 
   var sell_prices = [buy_price, buy_price];
-  for (var i = 2; i < 14; i++) {
+  for (let i = 2; i < 14; i++) {
     sell_prices.push(parseInt($("#sell_" + i).val()));
   }
 
@@ -607,3 +612,4 @@ $(document).on("input", function() {
 
   $("#output").html(output_possibilities)
 })
+*/

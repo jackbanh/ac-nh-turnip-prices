@@ -7,7 +7,7 @@ import {
   useMemo,
 } from 'react';
 
-import generatePossibilities from '../scripts';
+import generatePossibilities from '../js/predictions';
 
 /**
  * Gets the list of predictions.
@@ -28,7 +28,7 @@ function getPredictions(buyPriceString, days) {
 
   if (_.every(sellPrices, _.isNaN)) {
     // no input, don't generate possibilities
-    return ret;
+    return Promise.resolve(ret);
   }
 
   const iterable = generatePossibilities(sellPrices);
@@ -54,11 +54,7 @@ export default function usePreductions(buyPrice, days) {
   );
 
   useEffect(() => {
-    if (buyPrice) {
-      debouncedCalculatePredictions(buyPrice, days);
-    } else {
-      setPredictions([]);
-    }
+    debouncedCalculatePredictions(buyPrice, days);
   }, [debouncedCalculatePredictions, buyPrice, days]);
 
   return predictions;

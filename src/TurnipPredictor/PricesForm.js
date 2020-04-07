@@ -1,6 +1,6 @@
 import _ from 'underscore';
 import PropTypes from 'prop-types';
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -27,6 +27,7 @@ export default function PricesForm(props) {
     prices,
     onChange,
     today,
+    maxPrice,
   } = props;
 
   const { buyPrice, days } = prices;
@@ -56,6 +57,8 @@ export default function PricesForm(props) {
     e.target.blur();
   }, []);
 
+  const inputProps = useMemo(() => ({ min: 1, max: maxPrice, pattern: '\\d*' }), [maxPrice]);
+
   if (_.isEmpty(prices)) {
     return null;
   }
@@ -78,11 +81,13 @@ export default function PricesForm(props) {
                 <TextField
                   className={classes.textField}
                   type="number"
-                  label="Purchase price"
+                  label="Buy price from Daisy Mae"
+                  helperText="Only enter the buy and sell prices for your island"
                   value={buyPrice}
                   onChange={handleBuyPriceChange}
-                  inputProps={{ min: 1, max: 1000 }}
+                  inputProps={inputProps}
                   onWheel={handleWheel}
+                  fullWidth
                 />
               </TableCell>
             </TableRow>
@@ -95,8 +100,7 @@ export default function PricesForm(props) {
                     value={day.am}
                     onChange={handleDayChange}
                     inputProps={{
-                      min: 1,
-                      max: 1000,
+                      ...inputProps,
                       'data-id': day.id,
                       'data-column': 'am',
                     }}
@@ -109,8 +113,7 @@ export default function PricesForm(props) {
                     value={day.pm}
                     onChange={handleDayChange}
                     inputProps={{
-                      min: 1,
-                      max: 1000,
+                      ...inputProps,
                       'data-id': day.id,
                       'data-column': 'pm',
                     }}
@@ -136,4 +139,5 @@ PricesForm.propTypes = {
   }).isRequired,
   onChange: PropTypes.func.isRequired,
   today: PropTypes.string.isRequired,
+  maxPrice: PropTypes.number.isRequired,
 };

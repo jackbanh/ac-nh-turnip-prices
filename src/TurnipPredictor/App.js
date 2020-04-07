@@ -34,6 +34,8 @@ const DEFAULT_VALUE = {
   ],
 };
 
+const MAX_PRICE = 800;
+
 export default function App() {
   const classes = useStyles();
 
@@ -117,6 +119,7 @@ export default function App() {
             prices={prices}
             onChange={handlePricesChange}
             today={today}
+            maxPrice={MAX_PRICE}
           />
 
           <Grid container spacing={3}>
@@ -126,7 +129,7 @@ export default function App() {
                 variant="contained"
                 onClick={handleCreditsOpen}
               >
-                Credits
+                About
               </Button>
 
               <Button
@@ -141,7 +144,7 @@ export default function App() {
             </Grid>
             <Grid item xs={6}>
               {lastUpdated && (
-                <Typography variant="body2" align="right">
+                <Typography className={classes.saveMessage} variant="body2" align="right">
                   {`Saved: ${lastUpdated}`}
                 </Typography>
               )}

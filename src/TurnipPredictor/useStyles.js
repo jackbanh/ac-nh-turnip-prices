@@ -46,6 +46,11 @@ const useStyles = makeStyles(theme => ({
     color: theme.palette.primary.contrastText,
   },
 
+  saveMessage: {
+    marginTop: theme.spacing(2),
+    color: theme.palette.text.secondary,
+  },
+
   striped: {
     background: blueGrey['50'],
     color: theme.palette.getContrastText(blueGrey['50']),

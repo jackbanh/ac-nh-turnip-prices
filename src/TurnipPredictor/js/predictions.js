@@ -1,5 +1,3 @@
-/* eslint-disable */
-
 function minimum_rate_from_given_and_base(given_price, buy_price) {
   return 10000 * (given_price - 1) / buy_price;
 }
@@ -52,7 +50,7 @@ function* generate_pattern_0_with_lengths(given_prices, high_phase_1_len, dec_ph
   */
 
   const buy_price = given_prices[0];
-  var predicted_prices = [
+  const predicted_prices = [
     {
       min: buy_price,
       max: buy_price,
@@ -194,9 +192,9 @@ function* generate_pattern_0(given_prices) {
       hiPhaseLen2and3 = 7 - hiPhaseLen1;
       hiPhaseLen3 = randint(0, hiPhaseLen2and3 - 1);
   */
-  for (var dec_phase_1_len = 2; dec_phase_1_len < 4; dec_phase_1_len++) {
-    for (var high_phase_1_len = 0; high_phase_1_len < 7; high_phase_1_len++) {
-      for (var high_phase_3_len = 0; high_phase_3_len < (7 - high_phase_1_len - 1 + 1); high_phase_3_len++) {
+  for (let dec_phase_1_len = 2; dec_phase_1_len < 4; dec_phase_1_len++) {
+    for (let high_phase_1_len = 0; high_phase_1_len < 7; high_phase_1_len++) {
+      for (let high_phase_3_len = 0; high_phase_3_len < (7 - high_phase_1_len - 1 + 1); high_phase_3_len++) {
         yield* generate_pattern_0_with_lengths(given_prices, high_phase_1_len, dec_phase_1_len, 7 - high_phase_1_len - high_phase_3_len, 5 - dec_phase_1_len, high_phase_3_len);
       }
     }
@@ -226,7 +224,7 @@ function* generate_pattern_1_with_peak(given_prices, peak_start) {
   */
 
   const buy_price = given_prices[0];
-  var predicted_prices = [
+  const predicted_prices = [
     {
       min: buy_price,
       max: buy_price,
@@ -266,8 +264,8 @@ function* generate_pattern_1_with_peak(given_prices, peak_start) {
   }
 
   // Now each day is independent of next
-  let min_randoms = [0.9, 1.4, 2.0, 1.4, 0.9, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4]
-  let max_randoms = [1.4, 2.0, 6.0, 2.0, 1.4, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9]
+  const min_randoms = [0.9, 1.4, 2.0, 1.4, 0.9, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4];
+  const max_randoms = [1.4, 2.0, 6.0, 2.0, 1.4, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9];
   for (let i = peak_start; i < 14; i++) {
     let min_pred = Math.floor(min_randoms[i - peak_start] * buy_price);
     let max_pred = Math.ceil(max_randoms[i - peak_start] * buy_price);
@@ -294,7 +292,7 @@ function* generate_pattern_1_with_peak(given_prices, peak_start) {
 }
 
 function* generate_pattern_1(given_prices) {
-  for (var peak_start = 3; peak_start < 10; peak_start++) {
+  for (let peak_start = 3; peak_start < 10; peak_start++) {
     yield* generate_pattern_1_with_peak(given_prices, peak_start);
   }
 }
@@ -315,7 +313,7 @@ function* generate_pattern_2(given_prices) {
 
 
   const buy_price = given_prices[0];
-  var predicted_prices = [
+  const predicted_prices = [
     {
       min: buy_price,
       max: buy_price,
@@ -395,7 +393,7 @@ function* generate_pattern_3_with_peak(given_prices, peak_start) {
   */
 
   const buy_price = given_prices[0];
-  var predicted_prices = [
+  const predicted_prices = [
     {
       min: buy_price,
       max: buy_price,
@@ -454,39 +452,61 @@ function* generate_pattern_3_with_peak(given_prices, peak_start) {
     });
   }
 
-  // TODO this could be made more accurate, I've not bothered with the -1s, or forward/backward calculating of the rate each side of the peak value
-  for (let i = peak_start+2; i < peak_start+5; i++) {
-    let min_pred;
-    let max_pred;
-    if (i === peak_start+3) {
-      min_pred = Math.floor(1.4 * buy_price);
-      max_pred = Math.ceil(2.0 * buy_price);
-    } else {
-      min_pred = Math.floor(1.4 * buy_price) - 1;
-      max_pred = Math.ceil(2.0 * buy_price) - 1;
+  // Main spike 1
+  let min_pred = Math.floor(1.4 * buy_price) - 1;
+  let max_pred = Math.ceil(2.0 * buy_price) - 1;
+  if (!isNaN(given_prices[peak_start+2])) {
+    if (given_prices[peak_start+2] < min_pred || given_prices[peak_start+2] > max_pred ) {
+      // Given price is out of predicted range, so this is the wrong pattern
+      return;
     }
-    if (!isNaN(given_prices[i])) {
-      if (given_prices[i] < min_pred || given_prices[i] > max_pred ) {
-        // Given price is out of predicted range, so this is the wrong pattern
-        return;
-      }
-      min_pred = given_prices[i];
-      max_pred = given_prices[i];
-    }
-
-    predicted_prices.push({
-      min: min_pred,
-      max: max_pred,
-    });
+    min_pred = given_prices[peak_start+2];
+    max_pred = given_prices[peak_start+2];
   }
+  predicted_prices.push({
+    min: min_pred,
+    max: max_pred,
+  });
+
+  // Main spike 2
+  min_pred = predicted_prices[peak_start+2].min;
+  max_pred = Math.ceil(2.0 * buy_price);
+  if (!isNaN(given_prices[peak_start+3])) {
+    if (given_prices[peak_start+3] < min_pred || given_prices[peak_start+3] > max_pred ) {
+      // Given price is out of predicted range, so this is the wrong pattern
+      return;
+    }
+    min_pred = given_prices[peak_start+3];
+    max_pred = given_prices[peak_start+3];
+  }
+  predicted_prices.push({
+    min: min_pred,
+    max: max_pred,
+  });
+
+  // Main spike 3
+  min_pred = Math.floor(1.4 * buy_price) - 1;
+  max_pred = predicted_prices[peak_start+3].max - 1;
+  if (!isNaN(given_prices[peak_start+4])) {
+    if (given_prices[peak_start+4] < min_pred || given_prices[peak_start+4] > max_pred ) {
+      // Given price is out of predicted range, so this is the wrong pattern
+      return;
+    }
+    min_pred = given_prices[peak_start+4];
+    max_pred = given_prices[peak_start+4];
+  }
+  predicted_prices.push({
+    min: min_pred,
+    max: max_pred,
+  });
 
   if (peak_start+5 < 14) {
-    let min_rate = 4000;
-    let max_rate = 9000;
+    min_rate = 4000;
+    max_rate = 9000;
 
     for (let i = peak_start+5; i < 14; i++) {
-      let min_pred = Math.floor(min_rate * buy_price / 10000);
-      let max_pred = Math.ceil(max_rate * buy_price / 10000);
+      min_pred = Math.floor(min_rate * buy_price / 10000);
+      max_pred = Math.ceil(max_rate * buy_price / 10000);
 
 
       if (!isNaN(given_prices[i])) {
@@ -518,7 +538,7 @@ function* generate_pattern_3_with_peak(given_prices, peak_start) {
 }
 
 function* generate_pattern_3(given_prices) {
-  for (var peak_start = 2; peak_start < 10; peak_start++) {
+  for (let peak_start = 2; peak_start < 10; peak_start++) {
     yield* generate_pattern_3_with_peak(given_prices, peak_start);
   }
 }
@@ -531,7 +551,7 @@ export default function* generate_possibilities(sell_prices) {
     yield* generate_pattern_2(sell_prices);
     yield* generate_pattern_3(sell_prices);
   } else {
-    for (var buy_price = 90; buy_price < 110; buy_price++) {
+    for (let buy_price = 90; buy_price < 110; buy_price++) {
       sell_prices[0] = sell_prices[1] = buy_price;
       yield* generate_pattern_0(sell_prices);
       yield* generate_pattern_1(sell_prices);
@@ -541,75 +561,44 @@ export default function* generate_possibilities(sell_prices) {
   }
 }
 
-/*
-$(document).ready(function () {
-  // load sell_prices from local storage
-  try {
-    const sell_prices = JSON.parse(localStorage.getItem("sell_prices"));
+function analyze_possibilities(sell_prices) {
+  const generated_possibilities = Array.from(generate_possibilities(sell_prices));
 
-    if (!Array.isArray(sell_prices) || sell_prices.length !== 14) {
-      return;
-    }
-
-    sell_prices.forEach((sell_price, index) => {
-      if (!sell_price) {
-        return;
+  const global_min_max = [];
+  for (let day = 0; day < 14; day++) {
+    const prices = {
+      min: 999,
+      max: 0,
+    };
+    for (const poss of generated_possibilities) {
+      if (poss.prices[day].min < prices.min) {
+        prices.min = poss.prices[day].min;
       }
-
-      if (index === 0) {
-        $("#buy").val(sell_price);
-        return;
-      }
-
-      const element = $("#sell_" + index);
-
-      if (element.length) {
-        element.val(sell_price);
-      }
-    });
-
-    $(document).trigger("input");
-  } catch (e) {
-    console.error(e);
-  }
-
-  $("#reset").on("click", function() {
-    $("input").val(null).trigger("input");
-  })
-});
-
-$(document).on("input", function() {
-  // Update output on any input change
-
-  var buy_price = parseInt($("#buy").val());
-
-  var sell_prices = [buy_price, buy_price];
-  for (let i = 2; i < 14; i++) {
-    sell_prices.push(parseInt($("#sell_" + i).val()));
-  }
-
-  localStorage.setItem("sell_prices", JSON.stringify(sell_prices));
-
-  const is_empty = sell_prices.every(sell_price => !sell_price);
-  if (is_empty) {
-    $("#output").html("");
-    return;
-  }
-
-  var output_possibilities = "";
-  for (let poss of generate_possibilities(sell_prices)) {
-    var out_line = "<tr><td>" + poss.pattern_description + "</td>"
-    for (let day of [...poss.prices].slice(1)) {
-      if (day.min != day.max) {
-        out_line += "<td>" + day.min + ".." + day.max + "</td>"
-      } else {
-        out_line += "<td>" + day.min + "</td>"
+      if (poss.prices[day].max > prices.max) {
+        prices.max = poss.prices[day].max;
       }
     }
-    out_line += "</tr>"
-    output_possibilities += out_line
+    global_min_max.push(prices);
   }
 
-  $("#output").html(output_possibilities)
-})
-*/
+  generated_possibilities.push({
+    pattern_description: "predicted min/max across all patterns",
+    pattern_number: 4,
+    prices: global_min_max,
+  });
+
+  for (const poss of generated_possibilities) {
+    const weekMins = [];
+    const weekMaxes = [];
+    for (const day of poss.prices.slice(1)) {
+      weekMins.push(day.min);
+      weekMaxes.push(day.max);
+    }
+    poss.weekMin = Math.min(...weekMins);
+    poss.weekMax = Math.max(...weekMaxes);
+  }
+
+  generated_possibilities.sort((a, b) => a.weekMax < b.weekMax);
+
+  return generated_possibilities;
+}

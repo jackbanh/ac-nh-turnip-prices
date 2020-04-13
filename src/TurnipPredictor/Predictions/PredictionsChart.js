@@ -16,6 +16,8 @@ import {
 
 import Typography from '@material-ui/core/Typography';
 
+import createChartData from './createChartData';
+
 const DAYS_OF_WEEK = [
   'Sunday',
   'Monday',
@@ -32,57 +34,19 @@ export default function PredictionsChart(props) {
 
   const [crosshairValues, setCrosshairValues] = useState([]);
 
-  const data = useMemo(() => {
-    const min = [];
-    const max = [];
-    const mids = [];
-
-    // convert predictions into the expected format, each prediction contains data for all 7 days
-    for (let i = 0; i < predictions.length; i += 1) {
-      const prediction = predictions[i];
-
-      for (let j = 2; j < prediction.prices.length; j += 1) {
-        const price = prediction.prices[j];
-        const dataIndex = j - 2;
-
-        if (i === 0) {
-          // first prediction so always overwrite
-          min[dataIndex] = price.min;
-          max[dataIndex] = price.max;
-          mids[dataIndex] = [];
-        } else {
-          min[dataIndex] = Math.min(min[dataIndex], price.min);
-          max[dataIndex] = Math.max(max[dataIndex], price.max);
-        }
-
-        // mids is an array of all the midpoints
-        const difference = price.max - price.min;
-        mids[dataIndex].push(price.min + (difference / 2));
-      }
-    }
-
-    const area = [];
-    const line = [];
-    let weeklyMax = 0;
-
-    for (let i = 0; i < min.length; i += 1) {
-      area.push({ x: i, y: max[i], y0: min[i] });
-      weeklyMax = Math.max(weeklyMax, max[i]);
-
-      // calculate the average of all midpoints
-      const midsSum = _.reduce(mids[i], (memo, num) => memo + num);
-      line.push({ x: i, y: midsSum / mids[i].length });
-    }
-
-    return { area, line, max: weeklyMax };
-  }, [predictions]);
+  const data = useMemo(() => createChartData(predictions), [predictions]);
+  const { max, min } = data;
 
   const handleMouseLeave = useCallback(() => {
     setCrosshairValues([]);
   }, []);
 
   const handleNearestX = useCallback((value, { index }) => {
-    setCrosshairValues([data.area[index], data.line[index]]);
+    setCrosshairValues([
+      data.predictedArea[index],
+      data.predictedLine[index],
+      data.userLine[index],
+    ]);
   }, [data]);
 
   const convertX = useCallback(x => {
@@ -92,6 +56,8 @@ export default function PredictionsChart(props) {
       time: Number.isInteger(i) ? 'am' : 'pm',
     };
   }, []);
+
+  const getNull = useCallback(datum => datum.y != null, []);
 
   const tickFormat = useCallback(item => {
     if (!Number.isInteger(item)) {
@@ -109,18 +75,35 @@ export default function PredictionsChart(props) {
   }, [convertX]);
 
   const crosshairItemsFormat = useCallback(items => {
-    const min = items[0].y0;
-    const max = items[0].y;
+    const [predictedArea, predictedLine] = items;
 
-    if (max === min) {
-      return [{ title: 'Price', value: min }];
+    if (predictedArea.y0 === predictedArea.y) {
+      return [{ title: 'Price', value: predictedArea.y }];
     }
 
     return [
-      { title: 'Price range', value: `${items[0].y0}–${items[0].y}` },
-      { title: 'Average predicted price', value: Math.floor(items[1].y) },
+      { title: 'Price range', value: `${predictedArea.y0}–${predictedArea.y}` },
+      { title: 'Average predicted price', value: Math.floor(predictedLine.y) },
     ];
   }, []);
+
+  const weeklyBestMaxLabel = useMemo(() => {
+    if (max.x < 0) {
+      return '';
+    }
+
+    const { day, time } = convertX(max.x);
+    return `Best high prediction: ${max.y} (${day} ${time})`;
+  }, [max]);
+
+  const weeklyBestMinLabel = useMemo(() => {
+    if (min.x < 0) {
+      return '';
+    }
+
+    const { day, time } = convertX(min.x);
+    return `Best low prediction: ${min.y} (${day} ${time})`;
+  }, [min]);
 
   return (
     <div className={classes.chart}>
@@ -135,23 +118,31 @@ export default function PredictionsChart(props) {
           onMouseLeave={handleMouseLeave}
           yDomain={[0, 800]}
         >
-          <VerticalGridLines />
+          <VerticalGridLines tickTotal={12} />
           <HorizontalGridLines />
           <XAxis tickLabelAngle={-45} tickFormat={tickFormat} />
           <YAxis />
           <AreaSeries
             curve="curveCardinal"
             color={theme.palette.secondary.light}
-            data={data.area}
+            data={data.predictedArea}
             opacity={0.5}
           />
           <LineSeries
             curve="curveCardinal"
             color={theme.palette.secondary.dark}
-            data={data.line}
+            data={data.predictedLine}
             onNearestX={handleNearestX}
             strokeStyle="dashed"
           />
+          <LineSeries
+            curve="curveCardinal"
+            color={theme.palette.secondary.dark}
+            data={data.userLine}
+            onNearestX={handleNearestX}
+            getNull={getNull}
+          />
+
           <Crosshair
             values={crosshairValues}
             itemsFormat={crosshairItemsFormat}
@@ -167,10 +158,16 @@ export default function PredictionsChart(props) {
             }}
           />
           <ChartLabel
-            text={`Predicted weekly max: ${data.max}`}
+            text={weeklyBestMaxLabel}
             includeMargin={false}
-            xPercent={0.005}
-            yPercent={0.12}
+            xPercent={0.008}
+            yPercent={0.2}
+          />
+          <ChartLabel
+            text={weeklyBestMinLabel}
+            includeMargin={false}
+            xPercent={0.008}
+            yPercent={0.27}
           />
         </FlexibleWidthXYPlot>
       )}

@@ -21,7 +21,7 @@ export default function CreditsDialog(props) {
           Site by <Link href="https://twitter.com/jackbanh">@jackbanh</Link> (<Link href="https://github.com/jackbanh/ac-nh-turnip-prices">Github</Link>).
         </DialogContentText>
         <DialogContentText>
-          Based off the work of <Link href="https://mikebryant.github.io/ac-nh-turnip-prices/index.html">mikebryant</Link> (<Link href="https://github.com/mikebryant/ac-nh-turnip-prices">Github</Link>) and <Link href="https://twitter.com/_Ninji/status/1244818665851289602">Ninji</Link>.
+          Based off the work of <Link href="https://turnipprophet.io/">mikebryant</Link> (<Link href="https://github.com/mikebryant/ac-nh-turnip-prices">Github</Link>) and <Link href="https://twitter.com/_Ninji/status/1244818665851289602">Ninji</Link>.
         </DialogContentText>
         <DialogContentText>
           These calculations work off your own island&apos;s buy and sell prices. It will not work if you mix prices from different islands.

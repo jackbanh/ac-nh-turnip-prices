@@ -18,6 +18,13 @@ const theme = createMuiTheme({
       main: green.A100,
     },
   },
+  typography: {
+    fontFamily: '-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif',
+    h6: {
+      fontSize: '1rem',
+      fontWeight: 400,
+    },
+  },
 });
 
 /* global document */

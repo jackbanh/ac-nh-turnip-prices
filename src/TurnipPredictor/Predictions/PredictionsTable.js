@@ -38,6 +38,7 @@ export default function PredictionsTable(props) {
       <Table size="small" padding="none">
         <colgroup>
           <col />
+          <col className={classes.striped} />
           {_.map(days, day => (
             <React.Fragment key={day.id}>
               <col />
@@ -47,19 +48,20 @@ export default function PredictionsTable(props) {
         </colgroup>
         <TableHead>
           <TableRow>
-            <TableCell padding="default">Pattern</TableCell>
+            <TableCell>Pattern</TableCell>
+            <TableCell>Chance</TableCell>
             {_.map(days, day => (
               <TableCell
                 key={day.id}
                 colSpan={2}
                 className={day.id === today ? classes.today : null}
-                padding="default"
               >
                 {day.id}
               </TableCell>
             ))}
           </TableRow>
           <TableRow>
+            <TableCell />
             <TableCell />
             {_.map(days, day => (
               <React.Fragment key={day.id}>
@@ -73,6 +75,7 @@ export default function PredictionsTable(props) {
           {_.map(predictions, (p, i) => (
             <TableRow key={i}>
               <TableCell className={classes.patternCell}>{p.pattern_description}</TableCell>
+              <TableCell>{_.isFinite(p.probability) ? `${(p.probability * 100).toFixed(2)} %` : '—'}</TableCell>
               {_.map(p.prices, renderPrice)}
             </TableRow>
           ))}

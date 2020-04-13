@@ -31,6 +31,10 @@ const useStyles = makeStyles(theme => ({
     },
   },
 
+  predictionsTable: {
+    marginBottom: theme.spacing(5),
+  },
+
   patternCell: {
     wordBreak: 'break-all',
     '@media (min-width:600px)': {

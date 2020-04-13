@@ -7,7 +7,7 @@ import {
   useMemo,
 } from 'react';
 
-import generatePossibilities from '../js/predictions';
+import { generatePossibilities, getProbabilities } from '../js/predictions';
 
 /**
  * Gets the list of predictions.
@@ -31,7 +31,7 @@ function getPredictions(buyPriceString, days) {
     return Promise.resolve(ret);
   }
 
-  const iterable = generatePossibilities(sellPrices);
+  const iterable = generatePossibilities(sellPrices, false);
   return Promise.all(iterable);
 }
 
@@ -39,14 +39,29 @@ function getPredictions(buyPriceString, days) {
  * Custom hook to calculate the predictions as buy and sell prices are entered.
  * @param {String} buyPrice - Buy price on Sunday.
  * @param {Object[]} days - Array of days and their am/pm sell prices.
+ * @param {Number} [previousPattern] - Last week's pattern, if known.
  * @returns {Number[]} - List of predicted sell prices.
  */
-export default function usePreductions(buyPrice, days) {
+export default function usePreductions(buyPrice, days, previousPattern) {
   const [predictions, setPredictions] = useState([]);
 
   const calculatePredictions = useCallback((...args) => {
-    getPredictions(...args).then(p => setPredictions(p));
-  }, []);
+    getPredictions(...args)
+      .then(p => getProbabilities(p, previousPattern))
+      .then(p => {
+        p.sort((a, b) => {
+          if (a.probability > b.probability) {
+            return -1;
+          }
+          if (a.probability === b.probability) {
+            return 0;
+          }
+          return 1;
+        });
+        setPredictions(p);
+        return p;
+      });
+  }, [previousPattern]);
 
   const debouncedCalculatePredictions = useMemo(
     () => _.debounce(calculatePredictions, 200),

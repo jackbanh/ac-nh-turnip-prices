@@ -9,12 +9,13 @@ import React, {
 import Paper from '@material-ui/core/Paper';
 import Container from '@material-ui/core/Container';
 import Typography from '@material-ui/core/Typography';
+import Link from '@material-ui/core/Link';
 import Button from '@material-ui/core/Button';
 import DeleteIcon from '@material-ui/icons/Delete';
 import Grid from '@material-ui/core/Grid';
 
 import useStyles from './useStyles';
-import PricesForm from './PricesForm';
+import PricesForm from './PricesForm/PricesForm';
 import usePredictions from './Predictions/usePredictions';
 import PredictionsChart from './Predictions/PredictionsChart';
 import PredictionsTable from './Predictions/PredictionsTable';
@@ -32,6 +33,7 @@ const DEFAULT_VALUE = {
     { id: 'Friday', am: '', pm: '' },
     { id: 'Saturday', am: '', pm: '' },
   ],
+  previousPattern: -1,
 };
 
 const MAX_PRICE = 800;
@@ -42,8 +44,8 @@ export default function App() {
   const [prices, setPrices] = useState({});
   const [isCreditsOpen, setIsCreditsOpen] = useState(false);
 
-  const { buyPrice, days } = prices;
-  const predictions = usePredictions(buyPrice, days);
+  const { buyPrice, days, previousPattern } = prices;
+  const predictions = usePredictions(buyPrice, days, previousPattern);
 
   const today = useMemo(() => {
     const now = new Date();
@@ -107,7 +109,8 @@ export default function App() {
     <Container>
       <Paper className={classes.paper}>
         <Container className={classes.container}>
-          <Typography className={classes.heading} variant="h5" gutterBottom>Animal Crossing: New Horizons - Turnip Price Predictor</Typography>
+          <Typography className={classes.heading} variant="h5">Turnip Predictor</Typography>
+          <Typography variant="h6" gutterBottom>For Animal Crossing: New Horizons&mdash;Based on <Link href="https://turnipprophet.io/">turnipprophet.io</Link></Typography>
 
           <PredictionsChart
             classes={classes}
@@ -123,7 +126,7 @@ export default function App() {
           />
 
           <Grid container spacing={3}>
-            <Grid item xs={6}>
+            <Grid item xs={12} sm={6}>
               <Button
                 className={classes.button}
                 variant="contained"
@@ -139,10 +142,10 @@ export default function App() {
                 onClick={handleClearAllClick}
                 color="secondary"
               >
-                Clear All
+                Reset
               </Button>
             </Grid>
-            <Grid item xs={6}>
+            <Grid item xs={12} sm={6}>
               {lastUpdated && (
                 <Typography className={classes.saveMessage} variant="body2" align="right">
                   {`Saved: ${lastUpdated}`}
@@ -154,7 +157,7 @@ export default function App() {
         </Container>
       </Paper>
 
-      <Paper>
+      <Paper className={classes.predictionsTable}>
         <PredictionsTable
           classes={classes}
           predictions={predictions}

@@ -17,5 +17,8 @@ module.exports = {
     "prefer-arrow-callback": "off",
     "func-names": "off",
     "import/prefer-default-export": "off",
+    "operator-linebreak": "off",
+    "no-continue": "off",
+    "arrow-parens": "off",
   },
 };

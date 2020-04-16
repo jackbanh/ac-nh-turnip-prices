@@ -63,7 +63,7 @@ function get_price(rate, basePrice) {
 
 function* multiply_generator_probability(generator, probability) {
   for (const it of generator) {
-    yield {...it, probability: it.probability * probability};
+    yield { ...it, probability: it.probability * probability };
   }
 }
 
@@ -103,7 +103,8 @@ function range_intersect_length(range1, range2) {
  * If the given_prices won't match, returns 0.
  */
 function generate_individual_random_price(
-    given_prices, predicted_prices, start, length, rate_min, rate_max) {
+    given_prices, predicted_prices, start, length, rate_min, rate_max
+) {
   rate_min *= RATE_MULTIPLIER;
   rate_max *= RATE_MULTIPLIER;
 
@@ -204,8 +205,8 @@ class PDF {
     }
 
     let prob = 0;
-    const start_idx = Math.round(start) - this.value_start; 
-    const end_idx = Math.round(end) - this.value_start; 
+    const start_idx = Math.round(start) - this.value_start;
+    const end_idx = Math.round(end) - this.value_start;
     for (let i = start_idx; i <= end_idx; i++) {
       const bucket_prob = this.prob[i] * range_intersect_length(this.range_of(i), range);
       this.prob[i] = bucket_prob;
@@ -227,7 +228,8 @@ class PDF {
    */
   decay(rate_decay_min, rate_decay_max) {
     const ret = new PDF(
-        this.min_value() - rate_decay_max, this.max_value() - rate_decay_min, false);
+        this.min_value() - rate_decay_max, this.max_value() - rate_decay_min, false
+    );
     /*
     // O(n^2) naive algorithm for reference, which would be too slow.
     for (let i = this.value_start; i <= this.value_end; i++) {
@@ -255,7 +257,7 @@ class PDF {
       if (l < 0) l = 0;
       if (r > this.prob.length) r = this.prob.length;
       if (l >= r) return 0;
-      return this.prob[r - 1] - (l == 0 ? 0 : this.prob[l - 1]);
+      return this.prob[r - 1] - (l === 0 ? 0 : this.prob[l - 1]);
     };
 
     for (let x = 0; x < ret.prob.length; x++) {
@@ -289,14 +291,15 @@ class PDF {
  */
 function generate_decreasing_random_price(
     given_prices, predicted_prices, start, length, start_rate_min,
-    start_rate_max, rate_decay_min, rate_decay_max) {
+    start_rate_max, rate_decay_min, rate_decay_max
+) {
   start_rate_min *= RATE_MULTIPLIER;
   start_rate_max *= RATE_MULTIPLIER;
   rate_decay_min *= RATE_MULTIPLIER;
   rate_decay_max *= RATE_MULTIPLIER;
 
   const buy_price = given_prices[0];
-  let rate_pdf = new PDF(start_rate_min, start_rate_max);
+  const rate_pdf = new PDF(start_rate_min, start_rate_max);
   let prob = 1;
 
   for (let i = start; i < start + length; i++) {
@@ -312,7 +315,7 @@ function generate_decreasing_random_price(
       const real_rate_range =
           rate_range_from_given_and_base(clamp(given_prices[i], min_pred, max_pred), buy_price);
       prob *= rate_pdf.range_limit(real_rate_range);
-      if (prob == 0) {
+      if (prob === 0) {
         return 0;
       }
       min_pred = given_prices[i];
@@ -342,7 +345,8 @@ function generate_decreasing_random_price(
  * If the given_prices won't match, returns 0.
  */
 function generate_peak_price(
-    given_prices, predicted_prices, start, rate_min, rate_max) {
+    given_prices, predicted_prices, start, rate_min, rate_max
+) {
   rate_min *= RATE_MULTIPLIER;
   rate_max *= RATE_MULTIPLIER;
 
@@ -366,7 +370,7 @@ function generate_peak_price(
         rate_range_from_given_and_base(clamp(middle_price, min_pred, max_pred), buy_price);
     prob *= range_intersect_length(rate_range, real_rate_range) /
       range_length(rate_range);
-    if (prob == 0) {
+    if (prob === 0) {
       return 0;
     }
 
@@ -401,7 +405,7 @@ function generate_peak_price(
     }
     // TODO: How to deal with probability when there's fudge factor?
     // Clamp the value to be in range now so the probability won't be totally biased to fudged values.
-    const rate2_range = rate_range_from_given_and_base(clamp(price, min_pred, max_pred)+ 1, buy_price);
+    const rate2_range = rate_range_from_given_and_base(clamp(price, min_pred, max_pred) + 1, buy_price);
     const F = (t, ZZ) => {
       if (t <= 0) {
         return 0;
@@ -414,7 +418,7 @@ function generate_peak_price(
     const Z2 = B - C;
     const PY = (t) => (F(t - C, Z2) - F(t - C, Z1)) / (Z2 - Z1);
     prob *= PY(rate2_range[1]) - PY(rate2_range[0]);
-    if (prob == 0) {
+    if (prob === 0) {
       return 0;
     }
   }
@@ -424,8 +428,8 @@ function generate_peak_price(
   // since forward prediction is more useful here.
   //
   // Main spike 1
-  min_pred = get_price(rate_min, buy_price) - 1;
-  max_pred = get_price(rate_max, buy_price) - 1;
+  let min_pred = get_price(rate_min, buy_price) - 1;
+  let max_pred = get_price(rate_max, buy_price) - 1;
   if (!isNaN(given_prices[start])) {
     min_pred = given_prices[start];
     max_pred = given_prices[start];
@@ -465,7 +469,8 @@ function generate_peak_price(
 function*
     generate_pattern_0_with_lengths(
         given_prices, high_phase_1_len, dec_phase_1_len, high_phase_2_len,
-        dec_phase_2_len, high_phase_3_len) {
+        dec_phase_2_len, high_phase_3_len
+    ) {
   /*
       // PATTERN 0: high, decreasing, high, decreasing, high
       work = 2;
@@ -517,23 +522,25 @@ function*
 
   // High Phase 1
   probability *= generate_individual_random_price(
-      given_prices, predicted_prices, 2, high_phase_1_len, 0.9, 1.4);
-  if (probability == 0) {
+      given_prices, predicted_prices, 2, high_phase_1_len, 0.9, 1.45
+  );
+  if (probability === 0) {
     return;
   }
 
   // Dec Phase 1
   probability *= generate_decreasing_random_price(
       given_prices, predicted_prices, 2 + high_phase_1_len, dec_phase_1_len,
-      0.6, 0.8, 0.04, 0.1);
-  if (probability == 0) {
+      0.6, 0.8, 0.04, 0.1
+  );
+  if (probability === 0) {
     return;
   }
 
   // High Phase 2
   probability *= generate_individual_random_price(given_prices, predicted_prices,
       2 + high_phase_1_len + dec_phase_1_len, high_phase_2_len, 0.9, 1.4);
-  if (probability == 0) {
+  if (probability === 0) {
     return;
   }
 
@@ -541,8 +548,9 @@ function*
   probability *= generate_decreasing_random_price(
       given_prices, predicted_prices,
       2 + high_phase_1_len + dec_phase_1_len + high_phase_2_len,
-      dec_phase_2_len, 0.6, 0.8, 0.04, 0.1);
-  if (probability == 0) {
+      dec_phase_2_len, 0.6, 0.8, 0.04, 0.1
+  );
+  if (probability === 0) {
     return;
   }
 
@@ -554,8 +562,9 @@ function*
   const prev_length = 2 + high_phase_1_len + dec_phase_1_len +
       high_phase_2_len + dec_phase_2_len;
   probability *= generate_individual_random_price(
-      given_prices, predicted_prices, prev_length, 14 - prev_length, 0.9, 1.4);
-  if (probability == 0) {
+      given_prices, predicted_prices, prev_length, 14 - prev_length, 0.9, 1.4
+  );
+  if (probability === 0) {
     return;
   }
 
@@ -575,12 +584,13 @@ function* generate_pattern_0(given_prices) {
       hiPhaseLen2and3 = 7 - hiPhaseLen1;
       hiPhaseLen3 = randint(0, hiPhaseLen2and3 - 1);
   */
-  for (var dec_phase_1_len = 2; dec_phase_1_len < 4; dec_phase_1_len++) {
-    for (var high_phase_1_len = 0; high_phase_1_len < 7; high_phase_1_len++) {
-      for (var high_phase_3_len = 0; high_phase_3_len < (7 - high_phase_1_len - 1 + 1); high_phase_3_len++) {
+  for (let dec_phase_1_len = 2; dec_phase_1_len < 4; dec_phase_1_len++) {
+    for (let high_phase_1_len = 0; high_phase_1_len < 7; high_phase_1_len++) {
+      for (let high_phase_3_len = 0; high_phase_3_len < (7 - high_phase_1_len - 1 + 1); high_phase_3_len++) {
         yield* multiply_generator_probability(
           generate_pattern_0_with_lengths(given_prices, high_phase_1_len, dec_phase_1_len, 7 - high_phase_1_len - high_phase_3_len, 5 - dec_phase_1_len, high_phase_3_len),
-          1 / (4 - 2) / 7 / (7 - high_phase_1_len));
+          1 / (4 - 2) / 7 / (7 - high_phase_1_len)
+        );
       }
     }
   }
@@ -622,19 +632,21 @@ function* generate_pattern_1_with_peak(given_prices, peak_start) {
   let probability = 1;
 
   probability *= generate_decreasing_random_price(
-      given_prices, predicted_prices, 2, peak_start - 2, 0.85, 0.9, 0.03, 0.05);
-  if (probability == 0) {
+      given_prices, predicted_prices, 2, peak_start - 2, 0.85, 0.9, 0.03, 0.05
+  );
+  if (probability === 0) {
     return;
   }
 
   // Now each day is independent of next
-  min_randoms = [0.9, 1.4, 2.0, 1.4, 0.9, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4]
-  max_randoms = [1.4, 2.0, 6.0, 2.0, 1.4, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9]
+  const min_randoms = [0.9, 1.4, 2.0, 1.4, 0.9, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4];
+  const max_randoms = [1.4, 2.0, 6.0, 2.0, 1.4, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9];
   for (let i = peak_start; i < 14; i++) {
     probability *= generate_individual_random_price(
         given_prices, predicted_prices, i, 1, min_randoms[i - peak_start],
-        max_randoms[i - peak_start]);
-    if (probability == 0) {
+        max_randoms[i - peak_start]
+    );
+    if (probability === 0) {
       return;
     }
   }
@@ -647,7 +659,7 @@ function* generate_pattern_1_with_peak(given_prices, peak_start) {
 }
 
 function* generate_pattern_1(given_prices) {
-  for (var peak_start = 3; peak_start < 10; peak_start++) {
+  for (let peak_start = 3; peak_start < 10; peak_start++) {
     yield* multiply_generator_probability(generate_pattern_1_with_peak(given_prices, peak_start), 1 / (10 - 3));
   }
 }
@@ -680,8 +692,9 @@ function* generate_pattern_2(given_prices) {
   let probability = 1;
 
   probability *= generate_decreasing_random_price(
-      given_prices, predicted_prices, 2, 14 - 2, 0.85, 0.9, 0.03, 0.05);
-  if (probability == 0) {
+      given_prices, predicted_prices, 2, 14 - 2, 0.85, 0.9, 0.03, 0.05
+  );
+  if (probability === 0) {
     return;
   }
 
@@ -739,29 +752,33 @@ function* generate_pattern_3_with_peak(given_prices, peak_start) {
   let probability = 1;
 
   probability *= generate_decreasing_random_price(
-      given_prices, predicted_prices, 2, peak_start - 2, 0.4, 0.9, 0.03, 0.05);
-  if (probability == 0) {
+      given_prices, predicted_prices, 2, peak_start - 2, 0.4, 0.9, 0.03, 0.05
+  );
+  if (probability === 0) {
     return;
   }
 
   // The peak
   probability *= generate_individual_random_price(
-      given_prices, predicted_prices, peak_start, 2, 0.9, 1.4);
-  if (probability == 0) {
+      given_prices, predicted_prices, peak_start, 2, 0.9, 1.4
+  );
+  if (probability === 0) {
     return;
   }
 
   probability *= generate_peak_price(
-      given_prices, predicted_prices, peak_start + 2, 1.4, 2.0);
-  if (probability == 0) {
+      given_prices, predicted_prices, peak_start + 2, 1.4, 2.0
+  );
+  if (probability === 0) {
     return;
   }
 
   if (peak_start + 5 < 14) {
     probability *= generate_decreasing_random_price(
         given_prices, predicted_prices, peak_start + 5, 14 - (peak_start + 5),
-        0.4, 0.9, 0.03, 0.05);
-    if (probability == 0) {
+        0.4, 0.9, 0.03, 0.05
+    );
+    if (probability === 0) {
       return;
     }
   }
@@ -800,34 +817,34 @@ function* generate_all_patterns(sell_prices, previous_pattern) {
 
 function* generate_possibilities(sell_prices, first_buy, previous_pattern) {
   if (first_buy || isNaN(sell_prices[0])) {
-    for (var buy_price = 90; buy_price <= 110; buy_price++) {
+    for (let buy_price = 90; buy_price <= 110; buy_price++) {
       sell_prices[0] = sell_prices[1] = buy_price;
       if (first_buy) {
         yield* generate_pattern_3(sell_prices);
       } else {
         // All buy prices are equal probability and we're at the outmost layer,
         // so don't need to multiply_generator_probability here.
-        yield* generate_all_patterns(sell_prices, previous_pattern)
+        yield* generate_all_patterns(sell_prices, previous_pattern);
       }
     }
   } else {
-    yield* generate_all_patterns(sell_prices, previous_pattern)
+    yield* generate_all_patterns(sell_prices, previous_pattern);
   }
 }
 
 function analyze_possibilities(sell_prices, first_buy, previous_pattern) {
   const generated_possibilities = Array.from(generate_possibilities(sell_prices, first_buy, previous_pattern));
-  console.log(generated_possibilities);
+  // console.log(generated_possibilities);
 
   const total_probability = generated_possibilities.reduce((acc, it) => acc + it.probability, 0);
   for (const it of generated_possibilities) {
     it.probability /= total_probability;
   }
 
-  for (let poss of generated_possibilities) {
-    var weekMins = [];
-    var weekMaxes = [];
-    for (let day of poss.prices.slice(2)) {
+  for (const poss of generated_possibilities) {
+    const weekMins = [];
+    const weekMaxes = [];
+    for (const day of poss.prices.slice(2)) {
       weekMins.push(day.min);
       weekMaxes.push(day.max);
     }
@@ -845,13 +862,13 @@ function analyze_possibilities(sell_prices, first_buy, previous_pattern) {
     return 0;
   });
 
-  global_min_max = [];
-  for (var day = 0; day < 14; day++) {
-    prices = {
+  const global_min_max = [];
+  for (let day = 0; day < 14; day++) {
+    const prices = {
       min: 999,
       max: 0,
-    }
-    for (let poss of generated_possibilities) {
+    };
+    for (const poss of generated_possibilities) {
       if (poss.prices[day].min < prices.min) {
         prices.min = poss.prices[day].min;
       }
@@ -874,4 +891,3 @@ function analyze_possibilities(sell_prices, first_buy, previous_pattern) {
 }
 
 export const generatePossibilities = generate_possibilities;
-export const getProbabilities = get_probabilities;

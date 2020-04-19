@@ -1,3 +1,5 @@
+const i18next = { t: s => s };
+
 // The reverse-engineered code is not perfectly accurate, especially as it's not
 // 32-bit ARM floating point. So, be tolerant of slightly unexpected inputs
 const FUDGE_FACTOR = 5;
@@ -569,7 +571,7 @@ function*
   }
 
   yield {
-    pattern_description: "Fluctuating",
+    pattern_description: i18next.t("patterns.fluctuating"),
     pattern_number: 0,
     prices: predicted_prices,
     probability,
@@ -651,7 +653,7 @@ function* generate_pattern_1_with_peak(given_prices, peak_start) {
     }
   }
   yield {
-    pattern_description: "Large spike",
+    pattern_description: i18next.t("patterns.large-spike"),
     pattern_number: 1,
     prices: predicted_prices,
     probability,
@@ -699,7 +701,7 @@ function* generate_pattern_2(given_prices) {
   }
 
   yield {
-    pattern_description: "Decreasing",
+    pattern_description: i18next.t("patterns.decreasing"),
     pattern_number: 2,
     prices: predicted_prices,
     probability,
@@ -784,7 +786,7 @@ function* generate_pattern_3_with_peak(given_prices, peak_start) {
   }
 
   yield {
-    pattern_description: "Small spike",
+    pattern_description: i18next.t("patterns.small-spike"),
     pattern_number: 3,
     prices: predicted_prices,
     probability,
@@ -842,24 +844,41 @@ function analyze_possibilities(sell_prices, first_buy, previous_pattern) {
   }
 
   for (const poss of generated_possibilities) {
-    const weekMins = [];
-    const weekMaxes = [];
+    let weekMins = [];
+    let weekMaxes = [];
     for (const day of poss.prices.slice(2)) {
-      weekMins.push(day.min);
-      weekMaxes.push(day.max);
+      // Check for a future date by checking for a range of prices
+      if (day.min !== day.max) {
+        weekMins.push(day.min);
+        weekMaxes.push(day.max);
+      } else {
+        // If we find a set price after one or more ranged prices, the user has missed a day. Discard that data and start again.
+        weekMins = [];
+        weekMaxes = [];
+      }
+    }
+    if (!weekMins.length && !weekMaxes.length) {
+      weekMins.push(poss.prices[poss.prices.length - 1].min);
+      weekMaxes.push(poss.prices[poss.prices.length - 1].max);
     }
     poss.weekGuaranteedMinimum = Math.max(...weekMins);
     poss.weekMax = Math.max(...weekMaxes);
   }
 
+  const category_totals = {};
+  for (const i of [0, 1, 2, 3]) {
+    category_totals[i] = generated_possibilities
+      .filter(value => value.pattern_number === i)
+      .map(value => value.probability)
+      .reduce((previous, current) => previous + current, 0);
+  }
+
+  for (const pos of generated_possibilities) {
+    pos.category_total_probability = category_totals[pos.pattern_number];
+  }
+
   generated_possibilities.sort((a, b) => {
-    if (a.weekMax < b.weekMax) {
-      return 1;
-    }
-    if (a.weekMax > b.weekMax) {
-      return -1;
-    }
-    return 0;
+    return b.category_total_probability - a.category_total_probability || b.probability - a.probability;
   });
 
   const global_min_max = [];
@@ -880,11 +899,11 @@ function analyze_possibilities(sell_prices, first_buy, previous_pattern) {
   }
 
   generated_possibilities.unshift({
-    pattern_description: "All patterns",
+    pattern_description: i18next.t("patterns.all"),
     pattern_number: 4,
     prices: global_min_max,
     weekGuaranteedMinimum: Math.min(...generated_possibilities.map(poss => poss.weekGuaranteedMinimum)),
-    weekMax: Math.max(...generated_possibilities.map(poss => poss.weekMax)),
+    weekMax: Math.max(...generated_possibilities.map(poss => poss.weekMax))
   });
 
   return generated_possibilities;

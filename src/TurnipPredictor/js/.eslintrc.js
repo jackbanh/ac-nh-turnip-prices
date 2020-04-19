@@ -20,5 +20,6 @@ module.exports = {
     "operator-linebreak": "off",
     "no-continue": "off",
     "arrow-parens": "off",
+    "arrow-body-style": "off",
   },
 };

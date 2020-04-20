@@ -116,7 +116,7 @@ export default function PredictionsChart(props) {
         <FlexibleWidthXYPlot
           height={250}
           onMouseLeave={handleMouseLeave}
-          yDomain={[0, 800]}
+          yDomain={data.yDomain}
         >
           <VerticalGridLines tickTotal={12} />
           <HorizontalGridLines />

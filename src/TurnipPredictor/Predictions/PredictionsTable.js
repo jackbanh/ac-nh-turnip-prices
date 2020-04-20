@@ -1,5 +1,5 @@
 import _ from 'underscore';
-import React, { useCallback } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -8,6 +8,8 @@ import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 
+import PredictionsTableRow from './PredictionsTableRow';
+
 export default function PredictionsTable(props) {
   const {
     classes,
@@ -15,19 +17,6 @@ export default function PredictionsTable(props) {
     predictions,
     today,
   } = props;
-
-  const renderPrice = useCallback((price, i) => {
-    if (i < 2) {
-      // buy price, don't render
-      return null;
-    }
-
-    return (
-      <TableCell key={i}>
-        {price.min === price.max ? `${price.min}` : `${price.min}–${price.max}`}
-      </TableCell>
-    );
-  }, []);
 
   if (_.isEmpty(predictions)) {
     return null;
@@ -73,11 +62,12 @@ export default function PredictionsTable(props) {
         </TableHead>
         <TableBody>
           {_.map(predictions, (p, i) => (
-            <TableRow key={i}>
-              <TableCell className={classes.patternCell}>{p.pattern_description}</TableCell>
-              <TableCell>{_.isFinite(p.probability) ? `${(p.probability * 100).toFixed(2)} %` : '—'}</TableCell>
-              {_.map(p.prices, renderPrice)}
-            </TableRow>
+            <PredictionsTableRow
+              key={i}
+              classes={classes}
+              currentPrediction={p}
+              previousPrediction={i > 0 ? predictions[i - 1] : null}
+            />
           ))}
         </TableBody>
       </Table>

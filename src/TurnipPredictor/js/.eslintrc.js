@@ -21,5 +21,9 @@ module.exports = {
     "no-continue": "off",
     "arrow-parens": "off",
     "arrow-body-style": "off",
+    "max-classes-per-file": "off",
+    "class-methods-use-this": "off",
+    "function-paren-newline": "off",
+    "prefer-destructuring": "off",
   },
 };

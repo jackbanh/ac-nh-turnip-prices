@@ -1,5 +1,3 @@
-const i18next = { t: s => s };
-
 const PATTERN = {
   FLUCTUATING: 0,
   LARGE_SPIKE: 1,
@@ -659,7 +657,6 @@ class Predictor {
     }
 
     yield {
-      pattern_description: i18next.t("patterns.fluctuating"),
       pattern_number: 0,
       prices: predicted_prices,
       probability,
@@ -738,7 +735,6 @@ class Predictor {
       }
     }
     yield {
-      pattern_description: i18next.t("patterns.large-spike"),
       pattern_number: 1,
       prices: predicted_prices,
       probability,
@@ -785,7 +781,6 @@ class Predictor {
     }
 
     yield {
-      pattern_description: i18next.t("patterns.decreasing"),
       pattern_number: 2,
       prices: predicted_prices,
       probability,
@@ -866,7 +861,6 @@ class Predictor {
     }
 
     yield {
-      pattern_description: i18next.t("patterns.small-spike"),
       pattern_number: 3,
       prices: predicted_prices,
       probability,
@@ -994,7 +988,6 @@ class Predictor {
     }
 
     generated_possibilities.unshift({
-      pattern_description: i18next.t("patterns.all"),
       pattern_number: 4,
       prices: global_min_max,
       weekGuaranteedMinimum: Math.min(...generated_possibilities.map(poss => poss.weekGuaranteedMinimum)),
